@@ -19,6 +19,8 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/myapp');
 
 var Question     = require('./app/models/question');
+//our answer model is being imported
+var Answer     = require('./app/models/answer');
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -45,8 +47,8 @@ router.route('/questions')
     .post(function(req, res) {
 
         var question = new Question();      // create a new instance of the Bear model
-        question.text = req.body.text;  // set the bears name (comes from the request)
-
+        question.questionText = req.body.text;  // set the bears name (comes from the request)
+        //question.qid= req.body.qid; //text is just a silly placeholder for whetever you call it in the postman
         // save the bear and check for errors
         question.save(function(err) {
             if (err)
@@ -92,7 +94,7 @@ router.route('/questions/:q_id')
           if (err)
               res.send(err);
 
-          question.text = req.body.text;  // update the bears info
+          question.questionText = req.body.text;  // update the bears info
 
           // save the bear
           question.save(function(err) {
@@ -117,6 +119,46 @@ router.route('/questions/:q_id')
             res.json({ message: 'Successfully deleted' });
         });
     });
+
+
+//OUR ANSWERS ROUTES - WHICH WILL RETURN ALL ANSWERS AND ALLOW US TO ADD AN ANSWER
+// api/answers - is our route :?)
+//lets start by - creating functionality to add a vote / answer
+// more routes for our API will happen here
+// on routes that end in /bears
+// ----------------------------------------------------
+router.route('/answers')
+
+    // create a bear (accessed at POST http://localhost:8080/api/bears)
+    .post(function(req, res) {
+
+        var answer = new Answer();      // create a new instance of the Answer model
+        answer.questionID = req.body.questionID;  // set the bears name (comes from the request)
+        answer.response = req.body.response;
+        answer.time = req.body.time;
+        //question.qid= req.body.qid; //text is just a silly placeholder for whetever you call it in the postman
+        // save the bear and check for errors
+        answer.save(function(err) {
+            if (err)
+                res.send(err);
+
+            res.json({ message: 'Answer Logged!' });
+        });
+
+    })
+
+    // get all the bears (accessed at GET http://localhost:8080/api/bears)
+    .get(function(req, res) {
+        Answer.find(function(err, answers) {
+            if (err)
+                res.send(err);
+
+            res.json(answers);
+        });
+    });
+
+
+
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
